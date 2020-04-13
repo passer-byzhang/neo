@@ -4,7 +4,7 @@ using System;
 
 namespace Neo.Trie.MPT
 {
-    public class MPTTrie : MPTReadOnlyTrie, ITrie
+    public class MPTTrie : MPTReadOnlyTrie
     {
         public static uint Version = 0;
         private MPTDb db;

@@ -3,7 +3,6 @@ using Neo.IO.Caching;
 using Neo.IO.Data.LevelDB;
 using Neo.Trie.MPT;
 using System;
-using System.Text;
 using System.Collections.Generic;
 
 namespace Neo.Persistence.LevelDB
