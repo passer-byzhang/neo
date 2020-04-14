@@ -176,14 +176,14 @@ namespace Neo.SmartContract
         /// <returns></returns>
         private bool Ecrecover(ExecutionEngine engine)
         {
-            var r = new System.Numerics.BigInteger(engine.CurrentContext.EvaluationStack.Pop().GetByteArray().Reverse().ToArray());
-            var s = new System.Numerics.BigInteger(engine.CurrentContext.EvaluationStack.Pop().GetByteArray().Reverse().ToArray());
+            var r = new System.Numerics.BigInteger(engine.CurrentContext.EvaluationStack.Pop().GetByteArray().Reverse().Concat(new byte[1]).ToArray());
+            var s = new System.Numerics.BigInteger(engine.CurrentContext.EvaluationStack.Pop().GetByteArray().Reverse().Concat(new byte[1]).ToArray());
             bool v = engine.CurrentContext.EvaluationStack.Pop().GetBoolean();
             byte[] messageHash = engine.CurrentContext.EvaluationStack.Pop().GetByteArray();
             try
             {
                 ECPoint point = ECDsa.KeyRecover(ECCurve.Secp256k1, r, s, messageHash, v, true);
-                engine.CurrentContext.EvaluationStack.Push(point.EncodePoint(false).Skip(1).ToArray());//加120504
+                engine.CurrentContext.EvaluationStack.Push(point.EncodePoint(false).Skip(1).ToArray());
             }
             catch
             {
