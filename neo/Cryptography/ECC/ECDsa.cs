@@ -127,8 +127,6 @@ namespace Neo.Cryptography.ECC
                 }
 
                 // step 1.5 compute e
-
-
                 int messageBitLength = msg.Length * 8;
                 BigInteger e = new BigInteger(msg.Reverse().Concat(new byte[1]).ToArray());
                 if (curve.N.GetBitLength() < messageBitLength)
@@ -176,7 +174,6 @@ namespace Neo.Cryptography.ECC
                 }
 
                 // step 1.5 compute e
-                //byte[] H = Helper.Keccak256(msg);
                 int messageBitLength = msg.Length * 8;
                 BigInteger e = new BigInteger(msg.Reverse().Concat(new byte[1]).ToArray());
                 if (curve.N.GetBitLength() < messageBitLength)
