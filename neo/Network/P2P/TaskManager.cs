@@ -296,7 +296,7 @@ namespace Neo.Network.P2P
                         state_root_task_index = end_index;
                         session.Tasks[StateRootTaskHash] = DateTime.UtcNow;
                         IncrementGlobalTask(StateRootTaskHash);
-                        session.RemoteNode.Tell(Message.Create("getsts", GetStateRootsPayload.Create(start_index, end_index)));
+                        session.RemoteNode.Tell(Message.Create("getroots", GetStateRootsPayload.Create(start_index, end_index)));
                     }
                 }
             }
