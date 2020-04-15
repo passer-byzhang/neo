@@ -109,7 +109,7 @@ namespace Neo.Cryptography.ECC
         {
             // calculate h
             BigInteger h = (curve.Q + 1 + 2 * (BigInteger)Math.Sqrt((double)curve.Q)) / curve.N;
-            BigInteger e
+            BigInteger e;
             ECPoint Q = new ECPoint();
             int messageBitLength;
 
