@@ -101,8 +101,8 @@ namespace Neo.SmartContract
             Register("Neo.Iterator.Keys", Iterator_Keys, 1);
             Register("Neo.Iterator.Values", Iterator_Values, 1);
             Register("Neo.Iterator.Concat", Iterator_Concat, 1);
-            Register("Neo.CrossChain.Keccak256", Keccak256, 1);
-            Register("Neo.CrossChain.Ecrecover", Ecrecover, 1);
+            Register("Neo.Cryptography.Keccak256", Keccak256, 1);
+            Register("Neo.Cryptography.Ecrecover", Ecrecover, 1);
 
             #region Aliases
             Register("Neo.Iterator.Next", Enumerator_Next, 1);
@@ -183,12 +183,12 @@ namespace Neo.SmartContract
             try
             {
                 ECPoint point = ECDsa.KeyRecover(ECCurve.Secp256k1, r, s, messageHash, v, true);
-                engine.CurrentContext.EvaluationStack.Push(point.EncodePoint(false).Skip(1).ToArray());//加120504
+                engine.CurrentContext.EvaluationStack.Push(point.EncodePoint(false).Skip(1).ToArray());
             }
             catch
             {
                 engine.CurrentContext.EvaluationStack.Push(new byte[] { 0x00 });
-            }                      
+            }
             return true;
         }
 

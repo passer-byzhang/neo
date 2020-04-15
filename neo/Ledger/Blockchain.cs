@@ -244,13 +244,13 @@ namespace Neo.Ledger
         public bool GetStateProof(UInt256 root, StorageKey skey, out HashSet<byte[]> proof)
         {
             var trieReadOnlyDb = new TrieReadOnlyDb(Store, Prefixes.DATA_MPT);
-            var readOnlyTrie = new MPTReadOnlyTrie(root.ToArray(), trieReadOnlyDb);
+            var readOnlyTrie = new MPTReadOnlyTrie(root, trieReadOnlyDb);
             return readOnlyTrie.GetProof(skey.ToArray(), out proof);
         }
 
         public bool VerifyProof(UInt256 root, byte[] key, HashSet<byte[]> proof, out byte[] value)
         {
-            var result = MPTTrie.VerifyProof(root.ToArray(), key, proof, out value);
+            var result = MPTTrie.VerifyProof(root, key, proof, out value);
             if (result) value = value.AsSerializable<StorageItem>().Value;
             return result;
         }
@@ -477,7 +477,7 @@ namespace Neo.Ledger
                         break;
                     }
                     var local_state = snapshot.StateRoots.GetAndChange(state_root_verifying.Index);
-                    if (local_state.StateRoot.StateRoot_ == state_root_verifying.StateRoot_ && local_state.StateRoot.PreHash == state_root_verifying.PreHash)
+                    if (local_state.StateRoot.Root == state_root_verifying.Root && local_state.StateRoot.PreHash == state_root_verifying.PreHash)
                     {
                         StateHeight = state_root_verifying.Index;
                         if (state_root_verifying.Index + 3 > HeaderHeight)
@@ -847,8 +847,7 @@ namespace Neo.Ledger
             using (Snapshot snapshot = GetSnapshot())
             {
                 var trie_db = new TrieReadOnlyDb(Store, Prefixes.DATA_MPT);
-                var root = trie_db.GetRoot();
-                var current_root = root is null || root.Length == 0 ? UInt256.Zero : new UInt256(root);
+                var current_root = trie_db.GetRoot();
                 var current_index = snapshot.Height;
                 var pre_hash = UInt256.Zero;
                 var consensus = UInt160.Zero;
@@ -863,7 +862,7 @@ namespace Neo.Ledger
                     Version = MPTTrie.Version,
                     Index = current_index,
                     PreHash = pre_hash,
-                    StateRoot_ = current_root,
+                    Root = current_root,
                 };
                 var stateRootState = new StateRootState
                 {
