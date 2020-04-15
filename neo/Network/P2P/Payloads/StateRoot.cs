@@ -44,16 +44,16 @@ namespace Neo.Network.P2P.Payloads
 
         public int Size =>
             sizeof(uint) +          //Version
-            sizeof(uint) +          //Index 
+            sizeof(uint) +          //Index
             PreHash.Size +          //PrevHash
-            Root.Size +       //StateRoot
+            Root.Size +             //StateRoot
             1 +                     //Witness array count
-            Witness.Size;           //Witness   
+            Witness.Size;           //Witness
 
         public void Deserialize(BinaryReader reader)
         {
             this.DeserializeUnsigned(reader);
-            Witness[] witnesses = reader.ReadSerializableArray<Witness>();
+            Witness[] witnesses = reader.ReadSerializableArray<Witness>(1);
             if (witnesses.Length != 1) return;
             Witness = witnesses[0];
         }

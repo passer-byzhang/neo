@@ -1,13 +1,14 @@
 using Neo.IO.Json;
 using Neo;
 using System;
+using System.Collections.Generic;
 
 namespace Neo.Trie.MPT
 {
     public class MPTTrie : MPTReadOnlyTrie
     {
         public static uint Version = 0;
-        private MPTDb db;
+        private readonly MPTDb db;
 
         public MPTTrie(UInt256 root, IKVStore store) : base(root, store)
         {
@@ -185,13 +186,13 @@ namespace Neo.Trie.MPT
                             result = TryDelete(ref branchNode.Children[path[0]], path.Skip(1));
                         }
                         if (!result) return false;
-                        var childrenIndexes = Array.Empty<byte>();
+                        List<byte> childrenIndexes = new List<byte>();
                         for (int i = 0; i < BranchNode.ChildCount; i++)
                         {
                             if (branchNode.Children[i] is HashNode hn && hn.IsEmptyNode) continue;
-                            childrenIndexes = childrenIndexes.Add((byte)i);
+                            childrenIndexes.Add((byte)i);
                         }
-                        if (childrenIndexes.Length > 1)
+                        if (childrenIndexes.Count > 1)
                         {
                             branchNode.SetDirty();
                             db.Put(branchNode);
@@ -211,7 +212,7 @@ namespace Neo.Trie.MPT
                         }
                         if (lastChild is ExtensionNode exNode)
                         {
-                            exNode.Key = Helper.Concat(childrenIndexes, exNode.Key);
+                            exNode.Key = Helper.Concat(childrenIndexes.ToArray(), exNode.Key);
                             exNode.SetDirty();
                             db.Put(exNode);
                             node = exNode;
@@ -219,7 +220,7 @@ namespace Neo.Trie.MPT
                         }
                         var newNode = new ExtensionNode()
                         {
-                            Key = childrenIndexes,
+                            Key = childrenIndexes.ToArray(),
                             Next = lastChild,
                         };
                         node = newNode;

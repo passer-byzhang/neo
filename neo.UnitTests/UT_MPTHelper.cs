@@ -4,7 +4,7 @@ using Neo.Trie.MPT;
 namespace Neo.UnitTests.Trie.MPTH
 {
     [TestClass]
-    public class UT_Helper
+    public class UT_MPTHelper
     {
         [TestMethod]
         public void TestConcat()
@@ -13,20 +13,6 @@ namespace Neo.UnitTests.Trie.MPTH
             var b = new byte[] { 0x02 };
             a = a.Concat(b);
             Assert.AreEqual(2, a.Length);
-        }
-
-        [TestMethod]
-        public void TestAdd()
-        {
-            var a = "ab".HexToBytes();
-            byte b = 0x0c;
-            a = a.Add(b);
-            Assert.AreEqual("ab0c", a.ToHexString());
-
-            a = new byte[0];
-            a = a.Add(b);
-            Assert.AreEqual(1, a.Length);
-            Assert.AreEqual("0c", a.ToHexString());
         }
 
         [TestMethod]

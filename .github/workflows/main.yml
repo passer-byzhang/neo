@@ -2,7 +2,7 @@ name: .NET Core Test
 
 on:
   push:
-    branches: neox-2.x
+    branches: master-2.x
   pull_request:
 
 env:
@@ -26,7 +26,7 @@ jobs:
     - name: Test
       run: |
         find neo.UnitTests -name *.csproj | xargs -I % dotnet add % package coverlet.msbuild
-        dotnet test --filter "ClassName!=UT_Culture" /p:CollectCoverage=true /p:CoverletOutputFormat=lcov /p:CoverletOutput=${GITHUB_WORKSPACE}/coverage/lcov
+        dotnet test -f netcoreapp2.0 --filter "ClassName!=UT_Culture" /p:CollectCoverage=true /p:CoverletOutputFormat=lcov /p:CoverletOutput=${GITHUB_WORKSPACE}/coverage/lcov
     - name: Coveralls
       uses: coverallsapp/github-action@master
       with:

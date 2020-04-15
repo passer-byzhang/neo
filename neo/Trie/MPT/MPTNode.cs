@@ -37,22 +37,12 @@ namespace Neo.Trie.MPT
 
         public byte[] Encode()
         {
-            MemoryStream ms = null;
-            try
+            using (BinaryWriter writer = new BinaryWriter(new MemoryStream(), Encoding.UTF8, true))
             {
-                ms = new MemoryStream();
-                using (BinaryWriter writer = new BinaryWriter(ms, Encoding.UTF8))
-                {
-                    writer.Write((byte)nType);
-                    EncodeSpecific(writer);
-                    writer.Flush();
-                    return ms.ToArray();
-                }
-            }
-            finally
-            {
-                if (ms != null)
-                    ms.Dispose();
+                writer.Write((byte)nType);
+                EncodeSpecific(writer);
+                writer.Flush();
+                return ((MemoryStream)writer.BaseStream).ToArray();
             }
         }
 
@@ -63,43 +53,34 @@ namespace Neo.Trie.MPT
             if (data is null || data.Length == 0)
                 return null;
 
-            MemoryStream ms = null;
-            try
+            MPTNode node;
+            using (BinaryReader reader = new BinaryReader(new MemoryStream(data, false), Encoding.UTF8))
             {
-                ms = new MemoryStream(data, false);
-                using (BinaryReader reader = new BinaryReader(ms, Encoding.UTF8))
+                var nodeType = (NodeType)reader.ReadByte();
+                switch (nodeType)
                 {
-                    var nodeType = (NodeType)reader.ReadByte();
-                    switch (nodeType)
-                    {
-                        case NodeType.BranchNode:
-                            {
-                                var n = new BranchNode();
-                                n.DecodeSpecific(reader);
-                                return n;
-                            }
-                        case NodeType.ExtensionNode:
-                            {
-                                var n = new ExtensionNode();
-                                n.DecodeSpecific(reader);
-                                return n;
-                            }
-                        case NodeType.LeafNode:
-                            {
-                                var n = new LeafNode();
-                                n.DecodeSpecific(reader);
-                                return n;
-                            }
-                        default:
-                            throw new System.InvalidOperationException();
-                    }
+                    case NodeType.BranchNode:
+                        {
+                            node = new BranchNode();
+                            break;
+                        }
+                    case NodeType.ExtensionNode:
+                        {
+                            node = new ExtensionNode();
+                            break;
+                        }
+                    case NodeType.LeafNode:
+                        {
+                            node = new LeafNode();
+                            break;
+                        }
+                    default:
+                        throw new System.InvalidOperationException();
                 }
+
+                node.DecodeSpecific(reader);
             }
-            finally
-            {
-                if (ms != null)
-                    ms.Dispose();
-            }
+            return node;
         }
 
         public abstract void DecodeSpecific(BinaryReader reader);
