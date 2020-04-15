@@ -243,7 +243,7 @@ namespace Neo.Ledger
 
         public bool GetStateProof(UInt256 root, StorageKey skey, out HashSet<byte[]> proof)
         {
-            var trieReadOnlyDb = new TrieReadOnlyDb(Store, Prefixes.DATA_MPT);
+            var trieReadOnlyDb = new TrieReadOnlyStore(Store, Prefixes.DATA_MPT);
             var readOnlyTrie = new MPTReadOnlyTrie(root, trieReadOnlyDb);
             return readOnlyTrie.GetProof(skey.ToArray(), out proof);
         }
@@ -846,7 +846,7 @@ namespace Neo.Ledger
         {
             using (Snapshot snapshot = GetSnapshot())
             {
-                var trie_db = new TrieReadOnlyDb(Store, Prefixes.DATA_MPT);
+                var trie_db = new TrieReadOnlyStore(Store, Prefixes.DATA_MPT);
                 var current_root = trie_db.GetRoot();
                 var current_index = snapshot.Height;
                 var pre_hash = UInt256.Zero;

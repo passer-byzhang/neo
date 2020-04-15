@@ -6,14 +6,14 @@ using System.Text;
 
 namespace Neo.Ledger
 {
-    public class TrieReadOnlyDb : IKVReadOnlyStore
+    public class TrieReadOnlyStore : IKVReadOnlyStore
     {
         private readonly Store store;
         private readonly byte prefix;
 
         private readonly byte[] ROOT_KEY = Encoding.ASCII.GetBytes("CURRENT_ROOT");
 
-        public TrieReadOnlyDb(Store store, byte prefix)
+        public TrieReadOnlyStore(Store store, byte prefix)
         {
             this.store = store;
             this.prefix = prefix;
