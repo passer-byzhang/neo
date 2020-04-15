@@ -266,6 +266,11 @@ namespace Neo.Consensus
                 }
                 return;
             }
+            if (ProtocolSettings.Default.StateRootEnableIndex + 1 < payload.BlockIndex && Blockchain.Singleton.StateHeight < payload.BlockIndex - 2)
+            {
+                Log($"root sync: expected={payload.BlockIndex - 1} current={Blockchain.Singleton.StateHeight}");
+                return;
+            }
             if (payload.ValidatorIndex >= context.Validators.Length) return;
             ConsensusMessage message;
             try
