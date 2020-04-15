@@ -14,7 +14,7 @@ namespace Neo.Consensus
         public UInt256[] TransactionHashes;
         public MinerTransaction MinerTransaction;
 
-        public uint Version;
+        public byte Version;
         public uint Index;
         public UInt256 PreHash;
         public UInt256 Root;
@@ -49,7 +49,7 @@ namespace Neo.Consensus
             if (MinerTransaction.Hash != TransactionHashes[0])
                 throw new FormatException();
 
-            Version = reader.ReadUInt32();
+            Version = reader.ReadByte();
             Index = reader.ReadUInt32();
             PreHash = reader.ReadSerializable<UInt256>();
             Root = reader.ReadSerializable<UInt256>();

@@ -12,7 +12,7 @@ namespace Neo.Network.P2P.Payloads
 {
     public class StateRoot : IInventory
     {
-        public uint Version;
+        public byte Version;
         public uint Index;
         public UInt256 PreHash;
         public UInt256 Root;
@@ -43,7 +43,7 @@ namespace Neo.Network.P2P.Payloads
         }
 
         public int Size =>
-            sizeof(uint) +          //Version
+            sizeof(byte) +          //Version
             sizeof(uint) +          //Index
             PreHash.Size +          //PrevHash
             Root.Size +             //StateRoot
@@ -60,7 +60,7 @@ namespace Neo.Network.P2P.Payloads
 
         public void DeserializeUnsigned(BinaryReader reader)
         {
-            Version = reader.ReadUInt32();
+            Version = reader.ReadByte();
             Index = reader.ReadUInt32();
             PreHash = reader.ReadSerializable<UInt256>();
             Root = reader.ReadSerializable<UInt256>();

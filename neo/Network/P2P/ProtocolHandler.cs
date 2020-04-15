@@ -167,7 +167,7 @@ namespace Neo.Network.P2P
         private void OnGetStateRootsReceived(GetStateRootsPayload payload)
         {
             var start = payload.StartIndex;
-            var end = Math.Min(payload.EndIndex, start + StateRootsPayload.MaxStateRootsCount - 1);
+            var end = Math.Min(payload.Count, start + StateRootsPayload.MaxStateRootsCount - 1);
             var state_roots = new List<StateRoot>();
             for (uint i = start; i <= end; i++)
             {
@@ -179,7 +179,10 @@ namespace Neo.Network.P2P
                 }
                 break;
             }
-            Context.Parent.Tell(Message.Create("sts", StateRootsPayload.Create(state_roots)));
+            foreach (StateRootsPayload pl in StateRootsPayload.Create(state_roots))
+            {
+                Context.Parent.Tell(Message.Create("roots", pl));
+            }
         }
 
         private void OnStateRootsReceived(StateRootsPayload payload)

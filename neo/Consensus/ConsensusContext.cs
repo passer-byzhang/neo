@@ -16,7 +16,7 @@ namespace Neo.Consensus
 {
     internal class ConsensusContext : IConsensusContext
     {
-        public uint StateRootVersion { get; set; }
+        public byte StateRootVersion { get; set; }
         public uint StateRootIndex { get; set; }
         public UInt256 StateRootPreHash { get; set; }
         public UInt256 StateRootRoot { get; set; }
