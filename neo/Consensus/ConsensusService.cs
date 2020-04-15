@@ -419,10 +419,10 @@ namespace Neo.Consensus
             }
 
             StateRoot contextStateRoot = Blockchain.Singleton.GetStateRoot(Blockchain.Singleton.Height).StateRoot;
-            if (message.Index != contextStateRoot.Index) return;
-            if (message.PreHash != contextStateRoot.PreHash)
+            if (message.RootIndex != contextStateRoot.Index) return;
+            if (message.RootPreHash != contextStateRoot.PreHash)
             {
-                Log($"PreHash incorrect: {message.PreHash}", LogLevel.Warning);
+                Log($"PreHash incorrect: {message.RootPreHash}", LogLevel.Warning);
                 return;
             }
             if (message.Root != contextStateRoot.Root)
@@ -435,10 +435,13 @@ namespace Neo.Consensus
             // around 2*15/M=30.0/5 ~ 40% block time (for M=5)
             ExtendTimerByFactor(2);
 
-            context.StateRootVersion = message.Version;
-            context.StateRootIndex = message.Index;
-            context.StateRootPreHash = message.PreHash;
-            context.StateRootRoot = message.Root;
+            context.Root = new StateRoot
+            {
+                Version = message.RootVersion,
+                Index = message.RootIndex,
+                PreHash = message.RootPreHash,
+                Root = message.Root,
+            };
 
             context.Timestamp = message.Timestamp;
             context.Nonce = message.Nonce;

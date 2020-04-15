@@ -14,9 +14,9 @@ namespace Neo.Consensus
         public UInt256[] TransactionHashes;
         public MinerTransaction MinerTransaction;
 
-        public byte Version;
-        public uint Index;
-        public UInt256 PreHash;
+        public byte RootVersion;
+        public uint RootIndex;
+        public UInt256 RootPreHash;
         public UInt256 Root;
 
         public override int Size => base.Size
@@ -28,7 +28,7 @@ namespace Neo.Consensus
 
             + sizeof(uint)                      //Version
             + sizeof(uint)                      //Index
-            + PreHash.Size                      //PreHash
+            + RootPreHash.Size                      //PreHash
             + Root.Size;                  //StateRoot_
 
         public PrepareRequest()
@@ -49,9 +49,9 @@ namespace Neo.Consensus
             if (MinerTransaction.Hash != TransactionHashes[0])
                 throw new FormatException();
 
-            Version = reader.ReadByte();
-            Index = reader.ReadUInt32();
-            PreHash = reader.ReadSerializable<UInt256>();
+            RootVersion = reader.ReadByte();
+            RootIndex = reader.ReadUInt32();
+            RootPreHash = reader.ReadSerializable<UInt256>();
             Root = reader.ReadSerializable<UInt256>();
         }
 
@@ -64,9 +64,9 @@ namespace Neo.Consensus
             writer.Write(TransactionHashes);
             writer.Write(MinerTransaction);
 
-            writer.Write(Version);
-            writer.Write(Index);
-            writer.Write(PreHash);
+            writer.Write(RootVersion);
+            writer.Write(RootIndex);
+            writer.Write(RootPreHash);
             writer.Write(Root);
         }
     }
