@@ -105,7 +105,7 @@ namespace Neo.Cryptography.ECC
             return v.Equals(r);
         }
 
-        public static ECPoint KeyRecover(ECCurve curve, BigInteger r, BigInteger s, byte[] msg, bool IsEven ,bool doChecks)
+        public static ECPoint KeyRecover(ECCurve curve, BigInteger r, BigInteger s, byte[] msg, bool IsEven, bool doChecks)
         {
             // calculate h
             BigInteger h = (curve.Q + 1 + 2 * (BigInteger)Math.Sqrt((double)curve.Q)) / curve.N;
