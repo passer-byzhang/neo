@@ -167,11 +167,11 @@ namespace Neo.Network.P2P
         private void OnGetStateRootsReceived(GetStateRootsPayload payload)
         {
             var start = payload.StartIndex;
-            var end = Math.Min(payload.Count, start + StateRootsPayload.MaxStateRootsCount - 1);
+            var count = Math.Min(payload.Count, StateRootsPayload.MaxStateRootsCount);
             var state_roots = new List<StateRoot>();
-            for (uint i = start; i <= end; i++)
+            for (uint i = 0; i < count; i++)
             {
-                var state = Blockchain.Singleton.GetStateRoot(i);
+                var state = Blockchain.Singleton.GetStateRoot(start + i);
                 if (state.Flag == StateRootVerifyFlag.Verified)
                 {
                     state_roots.Add(state.StateRoot);
