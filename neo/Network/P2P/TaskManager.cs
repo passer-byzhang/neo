@@ -47,7 +47,6 @@ namespace Neo.Network.P2P
         private readonly UInt256 StateRootTaskHash = new UInt256(Crypto.Default.Hash256(Encoding.ASCII.GetBytes("SyncStateRoot")));
         private bool HasHeaderTask => globalTasks.ContainsKey(HeaderTaskHash);
         private bool HashStateRootTask => globalTasks.ContainsKey(StateRootTaskHash);
-        private uint state_root_task_index;
         public TaskManager(NeoSystem system)
         {
             this.system = system;
@@ -292,11 +291,10 @@ namespace Neo.Network.P2P
                     if (state.Flag == StateRootVerifyFlag.Unverified)
                     {
                         var start_index = state_height + 1;
-                        var end_index = Math.Min(height, state_height + 200);
-                        state_root_task_index = end_index;
+                        var count = Math.Min(height - start_index, StateRootsPayload.MaxStateRootsCount);
                         session.Tasks[StateRootTaskHash] = DateTime.UtcNow;
                         IncrementGlobalTask(StateRootTaskHash);
-                        session.RemoteNode.Tell(Message.Create("getroots", GetStateRootsPayload.Create(start_index, end_index)));
+                        session.RemoteNode.Tell(Message.Create("getroots", GetStateRootsPayload.Create(start_index, count)));
                     }
                 }
             }
