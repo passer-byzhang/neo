@@ -24,6 +24,7 @@ namespace Neo.Ledger
         public class ApplicationExecuted { public Transaction Transaction; public ApplicationExecutionResult[] ExecutionResults; }
         public class PersistCompleted { public Block Block; }
         public class Import { public IEnumerable<Block> Blocks; }
+        public class ImportRoots { public IEnumerable<StateRoot> Roots; }
         public class ImportCompleted { }
         public class FillMemoryPool { public IEnumerable<Transaction> Transactions; }
         public class FillCompleted { }
@@ -514,6 +515,35 @@ namespace Neo.Ledger
             system.TaskManager.Tell(new TaskManager.StateRootTaskCompleted(), Sender);
         }
 
+        private void OnImportRoots(IEnumerable<StateRoot> roots)
+        {
+            foreach (StateRoot root in roots)
+            {
+                if (root.Index < Math.Max(StateHeight, ProtocolSettings.Default.StateRootEnableIndex)) continue;
+                if (root.Index != Math.Max(StateHeight + 1, ProtocolSettings.Default.StateRootEnableIndex))
+                    throw new InvalidOperationException();
+                using (Snapshot snapshot = GetSnapshot())
+                {
+                    var local_state = snapshot.StateRoots.GetAndChange(root.Index);
+                    if (local_state.Flag == StateRootVerifyFlag.Invalid) break;
+                    if (local_state.StateRoot.Root == root.Root && local_state.StateRoot.PreHash == root.PreHash)
+                    {
+                        StateHeight = root.Index;
+                        local_state.StateRoot = root;
+                        local_state.Flag = StateRootVerifyFlag.Verified;
+                    }
+                    else
+                    {
+                        local_state.Flag = StateRootVerifyFlag.Invalid;
+                    }
+                    snapshot.Commit();
+                    UpdateCurrentSnapshot();
+                    if (local_state.Flag == StateRootVerifyFlag.Invalid) break;
+                }
+            }
+            Sender.Tell(new ImportCompleted());
+        }
+
         private void OnPersistCompleted(Block block)
         {
             block_cache.Remove(block.Hash);
@@ -533,6 +563,9 @@ namespace Neo.Ledger
             {
                 case Import import:
                     OnImport(import.Blocks);
+                    break;
+                case ImportRoots importr:
+                    OnImportRoots(importr.Roots);
                     break;
                 case FillMemoryPool fill:
                     OnFillMemoryPool(fill.Transactions);
