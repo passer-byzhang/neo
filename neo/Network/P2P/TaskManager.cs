@@ -285,7 +285,7 @@ namespace Neo.Network.P2P
             {
                 var state_height = Math.Max(Blockchain.Singleton.StateHeight, ProtocolSettings.Default.StateRootEnableIndex - 1);
                 var height = Blockchain.Singleton.Height;
-                if (state_height + 2 < height)
+                if (state_height + 1 < height)
                 {
                     var state = Blockchain.Singleton.GetStateRoot(state_height + 1);
                     if (state.Flag == StateRootVerifyFlag.Unverified)

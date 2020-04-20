@@ -549,10 +549,11 @@ namespace Neo.Ledger
             block_cache.Remove(block.Hash);
             MemPool.UpdatePoolForBlockPersisted(block, currentSnapshot);
             Context.System.EventStream.Publish(new PersistCompleted { Block = block });
-            if (StateHeight + 1 == block.Index && state_root_cache.ContainsKey(block.Index))
+            var index = Math.Max(StateHeight + 1, StateRootEnableIndex);
+            if (GetStateRoot(index).Flag == StateRootVerifyFlag.Unverified && state_root_cache.ContainsKey(index))
             {
-                state_root_cache.TryGetValue(block.Index, out StateRoot state_root);
-                state_root_cache.Remove(block.Index);
+                state_root_cache.TryGetValue(index, out StateRoot state_root);
+                state_root_cache.Remove(index);
                 Self.Tell(state_root);
             }
         }
