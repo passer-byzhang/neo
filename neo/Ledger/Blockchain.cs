@@ -132,8 +132,7 @@ namespace Neo.Ledger
         public uint HeaderHeight => currentSnapshot.HeaderHeight;
         public UInt256 CurrentBlockHash => currentSnapshot.CurrentBlockHash;
         public UInt256 CurrentHeaderHash => currentSnapshot.CurrentHeaderHash;
-
-        public uint StateHeight { get; private set; }
+        public uint StateHeight => currentSnapshot.StateHeight;
         private uint StateRootEnableIndex => ProtocolSettings.Default.StateRootEnableIndex;
         private readonly Dictionary<uint, StateRoot> state_root_cache = new Dictionary<uint, StateRoot>();
         private static Blockchain singleton;
@@ -183,15 +182,6 @@ namespace Neo.Ledger
                     Persist(GenesisBlock);
                 else
                     UpdateCurrentSnapshot();
-                for (uint i = Height; i >= StateRootEnableIndex && i >= 0; i--)
-                {
-                    var state = currentSnapshot.StateRoots.TryGet(i);
-                    if (state.Flag == StateRootVerifyFlag.Verified)
-                    {
-                        StateHeight = i;
-                        break;
-                    }
-                }
                 singleton = this;
             }
         }
@@ -480,23 +470,22 @@ namespace Neo.Ledger
                     var local_state = snapshot.StateRoots.GetAndChange(state_root_verifying.Index);
                     if (local_state.StateRoot.Root == state_root_verifying.Root && local_state.StateRoot.PreHash == state_root_verifying.PreHash)
                     {
-                        StateHeight = state_root_verifying.Index;
+                        snapshot.StateRootHashIndex.GetAndChange().Index = state_root_verifying.Index;
+                        snapshot.StateRootHashIndex.GetAndChange().Hash = state_root_verifying.Hash;
+                        local_state.StateRoot = state_root_verifying;
+                        local_state.Flag = StateRootVerifyFlag.Verified;
                         if (state_root_verifying.Index + 3 > HeaderHeight)
                         {
                             system.LocalNode.Tell(new LocalNode.SendDirectly { Inventory = state_root_verifying });
                         }
-                        local_state.StateRoot = state_root_verifying;
-                        local_state.Flag = StateRootVerifyFlag.Verified;
-                        snapshot.Commit();
-                        UpdateCurrentSnapshot();
                     }
                     else
                     {
                         local_state.Flag = StateRootVerifyFlag.Invalid;
-                        snapshot.Commit();
-                        UpdateCurrentSnapshot();
-                        break;
                     }
+                    snapshot.Commit();
+                    UpdateCurrentSnapshot();
+                    if (local_state.Flag == StateRootVerifyFlag.Invalid) break;
                 }
             }
             return RelayResultReason.Succeed;
@@ -528,7 +517,8 @@ namespace Neo.Ledger
                     if (local_state.Flag == StateRootVerifyFlag.Invalid) break;
                     if (local_state.StateRoot.Root == root.Root && local_state.StateRoot.PreHash == root.PreHash)
                     {
-                        StateHeight = root.Index;
+                        snapshot.StateRootHashIndex.GetAndChange().Index = root.Index;
+                        snapshot.StateRootHashIndex.GetAndChange().Hash = root.Hash;
                         local_state.StateRoot = root;
                         local_state.Flag = StateRootVerifyFlag.Verified;
                     }
