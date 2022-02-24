@@ -21,6 +21,12 @@ namespace Neo.SmartContract.Native
     public class TransactionState : IInteroperable
     {
         /// <summary>
+        /// The transaction is trimmed.
+        /// To indicate this state is a placeholder for a conflict transaction.
+        /// </summary>
+        public bool Trimmed;
+
+        /// <summary>
         /// The block containing this transaction.
         /// </summary>
         public uint BlockIndex;
@@ -40,16 +46,19 @@ namespace Neo.SmartContract.Native
         void IInteroperable.FromStackItem(StackItem stackItem)
         {
             Struct @struct = (Struct)stackItem;
-            BlockIndex = (uint)@struct[0].GetInteger();
-            _rawTransaction = @struct[1];
+            Trimmed = @struct[0].GetBoolean();
+            if (Trimmed) return;
+            BlockIndex = (uint)@struct[1].GetInteger();
+            _rawTransaction = @struct[2];
             Transaction = _rawTransaction.GetSpan().AsSerializable<Transaction>();
-            State = (VMState)(byte)@struct[2].GetInteger();
+            State = (VMState)(byte)@struct[3].GetInteger();
         }
 
         StackItem IInteroperable.ToStackItem(ReferenceCounter referenceCounter)
         {
+            if (Trimmed) return new Struct(referenceCounter) { true };
             _rawTransaction ??= Transaction.ToArray();
-            return new Struct(referenceCounter) { BlockIndex, _rawTransaction, (byte)State };
+            return new Struct(referenceCounter) { false, BlockIndex, _rawTransaction, (byte)State };
         }
     }
 }
